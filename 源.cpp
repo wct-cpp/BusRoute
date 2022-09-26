@@ -5,13 +5,14 @@
 #include <string>
 #include "s.h"
 using namespace std;
+void ShortestLine();
 
-int initPath(FILE* fp,Route r[]) {
-	
+int initPath(FILE* fp, Route r[]) {
+
 	int i = 0;
 	int j = 0;
 	char temp;
-	
+
 	node p, q;
 	temp = fgetc(fp);
 	while (temp != -1) {
@@ -56,7 +57,7 @@ int initPath(FILE* fp,Route r[]) {
 				p->next = q;
 				p = q;
 			}
-			
+
 			for (j = 0; temp != ' '; j++) {
 				if (!p) {//空指针判断
 					cout << "p is null" << endl;
@@ -91,36 +92,73 @@ int initPath(FILE* fp,Route r[]) {
 	return 0;
 }
 int search(Route r[]) {
-	int index=0;
 	int num;
 	cout << "请输入线路名称" << endl;
 	cin >> num;
-	for (index;index<=100; index++) {
-		int s = atoi(r[index].name);
+	for (int i = 0; i <= 100; i++) {
+		int s = atoi(r[i].name);
 		//cout << s<<endl;
-		if (s==num) {
-			cout << r[index].name << " " << r[index].first->NodeName;
-			node n = r[index].first->next;
-			while (n->next!=NULL) {
-				cout << n->NodeName<<" ";
+		if (s == num) {
+			cout << r[i].name << " " << r[i].first->NodeName;
+			node n = r[i].first->next;
+			while (n->next != NULL) {
+				cout << n->NodeName << " ";
 				n = n->next;
 			}
-			cout << n->NodeName;
+			cout << n->NodeName << endl;
 			return 0;
 		}
 		else {
 			continue;
 		}
 	}
-	cout << "请输入正确的线路名称！";
+	cout << "请输入正确的线路名称！" << endl;
 	search(r);
 	return 0;
 }
+
+node record(Route r[],node n,string nn) {
+	for (int i = 0; i < 3; i++) {
+		n = r[i].first;
+		while (n->NodeName != nn&&n->next!=NULL) {
+				n = n->next;
+		}
+		if (n->NodeName == nn) {
+			break;
+		}
+	}
+	if (n->NodeName != nn) {
+		return NULL;
+	}
+	else {
+		return n;
+	}
+	
+}
+
+void ShortestLine(Route r[]) {
+	node n1 = (node)malloc(sizeof(N)), n2=(node)malloc(sizeof(N));
+	string nn1, nn2;
+	cout << "输入两个站点" << endl;
+	cin >> nn1;
+	cin >> nn2;
+	n1=record(r, n1, nn1);
+	n2=record(r, n2, nn2);
+	if (n1 ==NULL || n2 == NULL) {
+		cout << "无此站点" << endl;
+		ShortestLine(r);
+	}
+	else {
+		cout << n1->NodeName << n2->NodeName;
+	}
+}
+
 int main() {
 	FILE* fp;
 	fp = fopen("busroute.txt", "r");
 	Route r[100];
-	initPath(fp,r);
-	search(r);
+	initPath(fp, r);
+	//search(r);
+	ShortestLine(r);
 	return 0;
 }
