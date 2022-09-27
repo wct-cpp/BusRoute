@@ -12,4 +12,9 @@ typedef struct Route {
 	char name[30];
 	struct Node* first;
 	
-}Route;
+}Route,*route;
+
+typedef struct Ran {
+	struct Route *r;
+	struct Node* n;
+}Ran,*ran;

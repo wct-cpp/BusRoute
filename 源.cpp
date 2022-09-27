@@ -117,13 +117,17 @@ int search(Route r[]) {
 	return 0;
 }
 
-node record(Route r[],node n,string nn) {
-	for (int i = 0; i < 3; i++) {
+ran record(Route r[],string nn) {
+	node n;
+	ran RaN = (ran)malloc(sizeof(Ran));
+	for (int i = 0; i < 100; i++) {
 		n = r[i].first;
 		while (n->NodeName != nn&&n->next!=NULL) {
 				n = n->next;
 		}
 		if (n->NodeName == nn) {
+			RaN->r = &r[i];
+			RaN->n = n;
 			break;
 		}
 	}
@@ -131,25 +135,76 @@ node record(Route r[],node n,string nn) {
 		return NULL;
 	}
 	else {
-		return n;
+		return RaN;
 	}
-	
 }
 
 void ShortestLine(Route r[]) {
-	node n1 = (node)malloc(sizeof(N)), n2=(node)malloc(sizeof(N));
+	ran ran1=(ran)malloc(sizeof(Ran)), ran2=(ran)malloc(sizeof(Ran));
 	string nn1, nn2;
 	cout << "输入两个站点" << endl;
 	cin >> nn1;
 	cin >> nn2;
-	n1=record(r, n1, nn1);
-	n2=record(r, n2, nn2);
-	if (n1 ==NULL || n2 == NULL) {
-		cout << "无此站点" << endl;
+	ran1=record(r, nn1);
+	ran2=record(r, nn2);
+	if (ran1 ==NULL || ran2 == NULL) {
+		cout << "无此站点,请重新输入" << endl;
 		ShortestLine(r);
 	}
 	else {
-		cout << n1->NodeName << n2->NodeName;
+		cout << ran1->r->name << ran1->n->NodeName <<ran2->r->name<<ran2->n->NodeName<<endl;
+		if (ran1->r->name == ran2->r->name) {//两个站点在同一条线路
+
+		}
+		else {//1 两个站点在不同线路,0 两个站点在同一条线路但站点在不同线路有重复
+			node s2=ran2->r->first;
+			string c1, c2;
+			while (s2 != NULL) {
+				node s1 = ran1->r->first;
+				while(s1!=NULL) {
+					c1 = s1->NodeName;
+					c2 = s2->NodeName;
+					//cout << c1<<c2<<endl;
+					if (c1==c2) {
+						//cout << "---------------相等----------------" << endl;
+						break;
+					}
+					s1 = s1->next;
+				}
+				if (c1 == c2) {
+					//cout << "相等" <<s2->NodeName<< endl;
+					break;
+				}
+				s2 = s2->next;
+			}
+			c1 = ran1->n->NodeName;
+			int i = 0;
+			while ( c1!= c2) {
+				cout << ran1->n->NodeName << endl;
+				ran1->n = ran1->n->next;
+				c1= ran1->n->NodeName;
+				i=1;
+			}
+			switch(i) {
+			case 0:
+				cout << ran1->n->NodeName << endl;
+				while (ran1->n->NodeName != ran2->n->NodeName) {
+					s2 = s2->next;
+					ran1->n = s2;
+					cout << ran1->n->NodeName << endl;
+				}
+				break;
+			case 1:
+				cout << ran1->n->NodeName << endl;
+				cout << "换"<<ran2->r->name<<"线"<<endl;
+				while (ran1->n->NodeName != ran2->n->NodeName) {
+					s2 = s2->next;
+					ran1->n = s2;
+					cout << ran1->n->NodeName << endl;
+				}
+			}
+			
+		}
 	}
 }
 
