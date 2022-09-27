@@ -11,15 +11,16 @@ int initPath(FILE* fp, Route r[]) {
 
 	int i = 0;
 	int j = 0;
-	char temp;
+	char temp=NULL;
 
 	node p, q;
-	temp = fgetc(fp);
 	while (temp != -1) {
-		for (j = 0; temp != '#'; j++) {
-			//_putch(temp);
-			r[i].name[j] = temp;
+		for (j = 0;; j++) {
 			temp = fgetc(fp);
+			if (temp == '#') {
+				break;
+			}
+			r[i].name[j] = temp;
 		}
 		r[i].name[j] = '\0';//字符串结束标志
 		//cout << r[i].name << "线" << endl;
@@ -126,7 +127,7 @@ ran record(Route r[],string nn) {
 				n = n->next;
 		}
 		if (n->NodeName == nn) {
-			RaN->r = &r[i];
+			RaN->r[0] = r[i];
 			RaN->n = n;
 			break;
 		}
@@ -153,8 +154,45 @@ void ShortestLine(Route r[]) {
 	}
 	else {
 		cout << ran1->r->name << ran1->n->NodeName <<ran2->r->name<<ran2->n->NodeName<<endl;
-		if (ran1->r->name == ran2->r->name) {//两个站点在同一条线路
-
+		int x = atoi(ran1->r->name);
+		int y = atoi(ran2->r->name);
+		if (x==y) {//两个站点在同一条线路
+			node s=ran1->n;
+			int i=0;
+			while (s->NodeName != ran2->n->NodeName) {
+				s = s->next;
+				if (s->NodeName == ran2->n->NodeName) {
+					i = 0;
+					break;
+				}
+				else if (s->next == NULL) {
+					s = ran1->n;
+					while (s->NodeName != ran2->n->NodeName) {
+						s = s->pre;
+						if (s->NodeName == ran2->n->NodeName) {
+							i = 1;
+							break;
+						}
+					}
+					break;
+				}
+			}
+			switch (i) {
+				case 0:
+					while (ran1->n->NodeName != ran2->n->NodeName) {
+						cout << ran1->n->NodeName << endl;
+						ran1->n = ran1->n->next;
+					}
+					cout << ran1->n->NodeName << endl;
+					break;
+				case 1:
+					while (ran1->n->NodeName != ran2->n->NodeName) {
+						cout << ran1->n->NodeName << endl;
+						ran1->n = ran1->n->pre;
+					}
+					cout << ran1->n->NodeName << endl;
+					break;
+			}
 		}
 		else {//1 两个站点在不同线路,0 两个站点在同一条线路但站点在不同线路有重复
 			node s2=ran2->r->first;
@@ -202,6 +240,7 @@ void ShortestLine(Route r[]) {
 					ran1->n = s2;
 					cout << ran1->n->NodeName << endl;
 				}
+				break;
 			}
 			
 		}

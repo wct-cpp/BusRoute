@@ -15,6 +15,6 @@ typedef struct Route {
 }Route,*route;
 
 typedef struct Ran {
-	struct Route *r;
+	struct Route r[10];
 	struct Node* n;
 }Ran,*ran;
