@@ -5,7 +5,8 @@
 #include <string>
 #include "s.h"
 using namespace std;
-void ShortestLine();
+
+void ShortestLine(Route r[]);
 
 int initPath(FILE* fp, Route r[]) {
 
@@ -118,6 +119,7 @@ int search(Route r[]) {
 	return 0;
 }
 
+//定位站点属于的路线
 ran record(Route r[],string nn) {
 	node n;
 	ran RaN = (ran)malloc(sizeof(Ran));
@@ -140,36 +142,29 @@ ran record(Route r[],string nn) {
 	}
 }
 
-void ShortestLine(Route r[]) {
-	ran ran1=(ran)malloc(sizeof(Ran)), ran2=(ran)malloc(sizeof(Ran));
-	string nn1, nn2;
-	cout << "输入两个站点" << endl;
-	cin >> nn1;
-	cin >> nn2;
-	ran1=record(r, nn1);
-	ran2=record(r, nn2);
-	if (ran1 ==NULL || ran2 == NULL) {
+void FindPath(Route r[],ran ranA,ran ranB) {
+	if (ranA == NULL || ranB == NULL) {
 		cout << "无此站点,请重新输入" << endl;
 		ShortestLine(r);
 	}
 	else {
-		cout << ran1->r->name << ran1->n->NodeName <<ran2->r->name<<ran2->n->NodeName<<endl;
-		int x = atoi(ran1->r->name);
-		int y = atoi(ran2->r->name);
-		if (x==y) {//两个站点在同一条线路
-			node s=ran1->n;
-			int i=0;
-			while (s->NodeName != ran2->n->NodeName) {
+		cout << ranA->r->name << ranA->n->NodeName << ranB->r->name << ranB->n->NodeName << endl;
+		int x = atoi(ranA->r->name);
+		int y = atoi(ranB->r->name);
+		if (x == y) {//两个站点在同一条线路
+			node s = ranA->n;
+			int i = 0;
+			while (s->NodeName != ranB->n->NodeName) {
 				s = s->next;
-				if (s->NodeName == ran2->n->NodeName) {
+				if (s->NodeName == ranB->n->NodeName) {
 					i = 0;
 					break;
 				}
 				else if (s->next == NULL) {
-					s = ran1->n;
-					while (s->NodeName != ran2->n->NodeName) {
+					s = ranA->n;
+					while (s->NodeName != ranB->n->NodeName) {
 						s = s->pre;
-						if (s->NodeName == ran2->n->NodeName) {
+						if (s->NodeName == ranB->n->NodeName) {
 							i = 1;
 							break;
 						}
@@ -178,73 +173,119 @@ void ShortestLine(Route r[]) {
 				}
 			}
 			switch (i) {
-				case 0:
-					while (ran1->n->NodeName != ran2->n->NodeName) {
-						cout << ran1->n->NodeName << endl;
-						ran1->n = ran1->n->next;
-					}
-					cout << ran1->n->NodeName << endl;
-					break;
-				case 1:
-					while (ran1->n->NodeName != ran2->n->NodeName) {
-						cout << ran1->n->NodeName << endl;
-						ran1->n = ran1->n->pre;
-					}
-					cout << ran1->n->NodeName << endl;
-					break;
+			case 0://输出后续
+				while (ranA->n->NodeName != ranB->n->NodeName) {
+					cout << ranA->n->NodeName << endl;
+					ranA->n = ranA->n->next;
+				}
+				cout << ranA->n->NodeName << endl;
+				break;
+			case 1://输出前序
+				while (ranA->n->NodeName != ranB->n->NodeName) {
+					cout << ranA->n->NodeName << endl;
+					ranA->n = ranA->n->pre;
+				}
+				cout << ranA->n->NodeName << endl;
+				break;
 			}
 		}
-		else {//1 两个站点在不同线路,0 两个站点在同一条线路但站点在不同线路有重复
-			node s2=ran2->r->first;
+		else {//0多条线  1 只需经过2条线
+			int i = 0;
 			string c1, c2;
-			while (s2 != NULL) {
-				node s1 = ran1->r->first;
-				while(s1!=NULL) {
+			node s1 = ranA->r->first;
+			node t = new N;
+			while (s1 != NULL) {
+				node s2 = ranB->r->first;
+				while (s2 != NULL) {
 					c1 = s1->NodeName;
 					c2 = s2->NodeName;
 					//cout << c1<<c2<<endl;
-					if (c1==c2) {
-						//cout << "---------------相等----------------" << endl;
+					if (c1 == c2) {
+						cout << "---------------1相等----------------" << endl;
 						break;
 					}
-					s1 = s1->next;
+					s2 = s2->next;
 				}
 				if (c1 == c2) {
-					//cout << "相等" <<s2->NodeName<< endl;
+					i = 1;
+					t = s2;
 					break;
 				}
-				s2 = s2->next;
+				s1 = s1->next;
 			}
-			c1 = ran1->n->NodeName;
-			int i = 0;
-			while ( c1!= c2) {
-				cout << ran1->n->NodeName << endl;
-				ran1->n = ran1->n->next;
-				c1= ran1->n->NodeName;
-				i=1;
-			}
-			switch(i) {
+			switch (i) {
 			case 0:
-				cout << ran1->n->NodeName << endl;
-				while (ran1->n->NodeName != ran2->n->NodeName) {
-					s2 = s2->next;
-					ran1->n = s2;
-					cout << ran1->n->NodeName << endl;
+			{
+				int x = 0;
+				while (r[x].name != NULL) {
+					if (atoi(r[x].name) == atoi(ranA->r->name) || atoi(r[x].name) == atoi(ranB->r->name)) {
+						//cout << "跳过" << r[x].name;
+						x++;
+						continue;
+					}
+					s1 = r[x].first;
+					while (s1 != NULL) {
+						node s2 = ranB->r->first;
+						while (s2 != NULL) {
+							c1 = s1->NodeName;
+							c2 = s2->NodeName;
+							if (c1 == c2) {
+								cout << "---------------2相等----------------" <<endl;
+								break;
+							}
+							s2 = s2->next;
+						}
+						if (c1 == c2) {
+							break;
+						}
+						s1 = s1->next;
+					}
+					if (c1 == c2) {
+						break;
+					}
+					x++;
 				}
-				break;
+				//cout << r[x].name << s1->NodeName << endl;
+				ran ranl=new Ran;
+				int n = *r[x].name;
+				ranl->n = s1;
+				ranl->r[0] = r[x];
+				ranl->r[0].name[30] = n;
+				FindPath(r, ranA, ranl);
+				FindPath(r, ranl, ranB);
+			}
+			break;
 			case 1:
-				cout << ran1->n->NodeName << endl;
-				cout << "换"<<ran2->r->name<<"线"<<endl;
-				while (ran1->n->NodeName != ran2->n->NodeName) {
-					s2 = s2->next;
-					ran1->n = s2;
-					cout << ran1->n->NodeName << endl;
+				c1 = ranA->n->NodeName;
+				while (c1 != c2) {
+					cout << ranA->n->NodeName << endl;
+					ranA->n = ranA->n->next;
+					c1 = ranA->n->NodeName;
+				}
+				cout << ranA->n->NodeName << endl;
+				cout << "换" << ranB->r->name << "线" << endl;
+				while (ranA->n->NodeName != ranB->n->NodeName) {
+					t = t->next;
+					ranA->n = t;
+					cout << ranA->n->NodeName << endl;
 				}
 				break;
 			}
-			
 		}
 	}
+}
+
+void ShortestLine(Route r[]) {
+	ran ran1=(ran)malloc(sizeof(Ran)), ran2=(ran)malloc(sizeof(Ran));
+	string nn1, nn2;
+	cout << "输入两个站点" << endl;
+	cin >> nn1;
+	cin >> nn2;
+	ran1=record(r, nn1);
+	ran2=record(r, nn2);
+
+	FindPath(r, ran1, ran2);
+
 }
 
 int main() {
